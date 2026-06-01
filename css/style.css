@@ -1028,42 +1028,73 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 }
 .plan-levels {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 8px 0 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) transparent;
 }
+.plan-levels::-webkit-scrollbar { height: 4px; }
+.plan-levels::-webkit-scrollbar-track { background: transparent; }
+.plan-levels::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
 .plan-level {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  min-width: 90px;
+  flex-shrink: 0;
 }
 .plan-level-circle {
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
-  font-size: .95rem;
+  font-size: 1rem;
   color: var(--white);
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.plan-level-circle:hover {
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 8px 24px rgba(0,0,0,.22);
 }
 .plan-level-circle.start { background: var(--green-dark); }
-.plan-level-circle.sd   { background: var(--navy); }
-.plan-level-circle.sed  { background: var(--green-mid); }
-.plan-level-circle.pd   { background: var(--navy-mid); }
-.plan-level-circle.spd  { background: linear-gradient(135deg, var(--yellow) 0%, var(--green-dark) 100%); }
-.plan-level-label { font-size: .78rem; color: var(--text-sub); }
-.plan-level-amount { font-size: .85rem; font-weight: 700; color: var(--navy); }
-.plan-earn { color: var(--green-dark); }
-.plan-arrow-v {
-  font-size: 1.5rem;
-  color: var(--gray-400);
-  margin: 0 4px;
+.plan-level-circle.sd    { background: var(--navy); }
+.plan-level-circle.sed   { background: var(--green-mid); }
+.plan-level-circle.pd    { background: var(--navy-mid); }
+.plan-level-circle.spd   { background: linear-gradient(135deg, #c8b400 0%, var(--green-dark) 100%); }
+.plan-level-label  { font-size: .75rem; color: var(--text-sub); margin-top: 2px; }
+.plan-level-amount { font-size: .82rem; font-weight: 700; color: var(--navy); }
+.plan-earn         { color: var(--green-dark); }
+
+/* ── 수평 SVG 화살표 ── */
+.plan-arrow-h {
+  flex-shrink: 0;
+  width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 원의 세로 중심(circle 80px + gap 10px label 위치) 맞춤 */
+  margin-bottom: 52px;
+  opacity: .75;
 }
+.plan-arrow-h svg {
+  width: 56px;
+  height: 20px;
+  display: block;
+}
+
+/* 구 .plan-arrow-v 는 모바일에서만 사용 → 기본 숨김 */
+.plan-arrow-v { display: none; }
 
 /* Bonuses */
 .bonus-section { margin-bottom: 64px; }
@@ -1654,9 +1685,11 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .cashflow-grid { max-width: 100%; }
 
   /* Compensation */
-  .smart-plan { padding: 28px; }
-  .plan-levels { flex-direction: column; gap: 12px; }
-  .plan-arrow-v { transform: rotate(0deg); }
+  .smart-plan { padding: 24px 16px; }
+  /* 모바일: 가로 스크롤 유지 — 레이아웃 변경 없음 */
+  .plan-level-circle { width: 64px; height: 64px; font-size: .85rem; }
+  .plan-arrow-h { width: 36px; margin-bottom: 44px; }
+  .plan-arrow-h svg { width: 36px; height: 16px; }
   .bonus-grid { grid-template-columns: 1fr; }
   .so-compare { grid-template-columns: 1fr; }
   .edu-cycle { flex-direction: column; }
@@ -1689,7 +1722,11 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .section-title { font-size: 1.6rem; }
   .hero-title-light { font-size: 1.8rem; }
   .hero-title-bold  { font-size: 2rem; }
-  .plan-levels { gap: 8px; }
+  .plan-level-circle { width: 54px; height: 54px; font-size: .78rem; }
+  .plan-level-label  { font-size: .68rem; }
+  .plan-level-amount { font-size: .72rem; }
+  .plan-arrow-h { width: 28px; margin-bottom: 38px; }
+  .plan-arrow-h svg { width: 28px; height: 14px; }
   .cashflow-grid { grid-template-columns: 1fr; max-width: 280px; }
   .clean-steps { flex-direction: column; }
   .clean-arrow { transform: rotate(90deg); }
