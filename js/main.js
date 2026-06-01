@@ -13,6 +13,8 @@
     initRevealOnScroll();
     initScrollTopBtn();
     initContactForm();
+    initCatalogSlider();
+    initLightbox();
   });
 
   /* =========================================
@@ -237,6 +239,181 @@
      ========================================= */
   function animateCounters() {
     // Simple presence; numbers already displayed as text
+  }
+
+  /* =========================================
+     CATALOG SLIDER
+     ========================================= */
+  var catalogImages = [
+    { src: 'https://www.genspark.ai/api/files/s/m8oGjXNd', caption: '패키지 제품 — 트루헬스 클렌즈 패키지 / 미라클17 스타트팩 / 파워팩' },
+    { src: 'https://www.genspark.ai/api/files/s/qY5esp6G', caption: 'Life & Health — 점막·소화 / 혈당·장 건강 제품' },
+    { src: 'https://www.genspark.ai/api/files/s/RVypFwnv', caption: 'Life & Health — 면역건강 / 에너지 / 혈액순환 / 뇌건강 제품' },
+    { src: 'https://www.genspark.ai/api/files/s/mFjD5tGN', caption: 'Life & Health — 앰브로토스 / 옵티멀 / 항산화 / 호르몬 건강' },
+    { src: 'https://www.genspark.ai/api/files/s/wHwfsGWX', caption: 'Beauty & Skin Care — 헤어·바디·오랄·홈 케어 제품' },
+    { src: 'https://www.genspark.ai/api/files/s/oREBBlqh', caption: 'Life & Health — 눈건강 / 콜라겐 / 관절 / 남성·여성 건강' },
+    { src: 'https://www.genspark.ai/api/files/s/V6Dor1kY', caption: 'Beauty & Skin Care — 루미노베이션 스킨케어 풀 라인' },
+    { src: 'https://www.genspark.ai/api/files/s/ttIw5R4W', caption: 'Energy & Body — 간건강 / 식사대용 / 다이어트 / 건강 음료' }
+  ];
+
+  var currentSlide = 0;
+  var totalSlides  = catalogImages.length;
+
+  function initCatalogSlider() {
+    var slides   = document.querySelectorAll('.catalog-slide');
+    var dots     = document.querySelectorAll('.dot');
+    var catTabs  = document.querySelectorAll('.cat-tab');
+    var prevBtn  = document.getElementById('sliderPrev');
+    var nextBtn  = document.getElementById('sliderNext');
+    var curNum   = document.getElementById('slideCurrentNum');
+
+    if (!prevBtn || !nextBtn) return;
+
+    function goToSlide(n) {
+      // Clamp
+      if (n < 0) n = totalSlides - 1;
+      if (n >= totalSlides) n = 0;
+      currentSlide = n;
+
+      // Slides
+      slides.forEach(function (s) { s.classList.remove('active'); });
+      if (slides[n]) slides[n].classList.add('active');
+
+      // Dots
+      dots.forEach(function (d) { d.classList.remove('active'); });
+      if (dots[n]) dots[n].classList.add('active');
+
+      // Tabs
+      catTabs.forEach(function (t) { t.classList.remove('active'); });
+      if (catTabs[n]) catTabs[n].classList.add('active');
+
+      // Counter
+      if (curNum) curNum.textContent = n + 1;
+    }
+
+    prevBtn.addEventListener('click', function () { goToSlide(currentSlide - 1); });
+    nextBtn.addEventListener('click', function () { goToSlide(currentSlide + 1); });
+
+    // Dot clicks
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        goToSlide(parseInt(this.getAttribute('data-dot'), 10));
+      });
+    });
+
+    // Tab clicks
+    catTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        goToSlide(parseInt(this.getAttribute('data-slide'), 10));
+      });
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function (e) {
+      var overlay = document.getElementById('lightboxOverlay');
+      if (overlay && overlay.classList.contains('open')) return; // lightbox handles its own keys
+      if (e.key === 'ArrowLeft')  goToSlide(currentSlide - 1);
+      if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
+    });
+
+    // Swipe support
+    var touchStartX = 0;
+    var slider = document.getElementById('catalogSlider');
+    if (slider) {
+      slider.addEventListener('touchstart', function (e) {
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      slider.addEventListener('touchend', function (e) {
+        var diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) goToSlide(currentSlide + 1);
+          else          goToSlide(currentSlide - 1);
+        }
+      }, { passive: true });
+    }
+
+    // Init
+    goToSlide(0);
+  }
+
+  /* =========================================
+     LIGHTBOX
+     ========================================= */
+  var lightboxIndex = 0;
+
+  function initLightbox() {
+    var overlay    = document.getElementById('lightboxOverlay');
+    var img        = document.getElementById('lightboxImg');
+    var caption    = document.getElementById('lightboxCaption');
+    var closeBtn   = document.getElementById('lightboxClose');
+    var prevBtn    = document.getElementById('lightboxPrev');
+    var nextBtn    = document.getElementById('lightboxNext');
+    var imgWraps   = document.querySelectorAll('.slide-img-wrap');
+
+    if (!overlay) return;
+
+    function openLightbox(index) {
+      lightboxIndex = index;
+      var item = catalogImages[index];
+      img.src        = item.src;
+      img.alt        = item.caption;
+      caption.textContent = item.caption;
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      // Clear src after transition
+      setTimeout(function () { img.src = ''; }, 300);
+    }
+
+    function navLightbox(dir) {
+      lightboxIndex = (lightboxIndex + dir + totalSlides) % totalSlides;
+      var item = catalogImages[lightboxIndex];
+      img.style.opacity = '0';
+      setTimeout(function () {
+        img.src = item.src;
+        img.alt = item.caption;
+        caption.textContent = item.caption;
+        img.style.opacity = '1';
+      }, 150);
+    }
+
+    // Set transition on lightbox img
+    img.style.transition = 'opacity .15s ease';
+
+    // Open via image wrap click
+    imgWraps.forEach(function (wrap) {
+      wrap.addEventListener('click', function () {
+        var idx = parseInt(this.getAttribute('data-lightbox'), 10);
+        if (!isNaN(idx)) openLightbox(idx);
+      });
+    });
+
+    // Close
+    closeBtn.addEventListener('click', closeLightbox);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeLightbox();
+    });
+
+    // Nav
+    prevBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      navLightbox(-1);
+    });
+    nextBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      navLightbox(1);
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', function (e) {
+      if (!overlay.classList.contains('open')) return;
+      if (e.key === 'Escape')     closeLightbox();
+      if (e.key === 'ArrowLeft')  navLightbox(-1);
+      if (e.key === 'ArrowRight') navLightbox(1);
+    });
   }
 
 })();
