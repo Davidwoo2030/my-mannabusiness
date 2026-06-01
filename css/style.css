@@ -154,6 +154,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   border-radius: var(--radius-md) !important;
 }
 .nav-cta:hover { background: var(--green-mid) !important; }
+.nav-price { background: linear-gradient(135deg,#2d6a4f,#40916c) !important; font-size: .85rem !important; }
 
 .nav-toggle {
   display: none;
