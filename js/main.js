@@ -245,14 +245,14 @@
      CATALOG SLIDER
      ========================================= */
   var catalogImages = [
-    { src: 'https://www.genspark.ai/api/files/s/m8oGjXNd', caption: '패키지 제품 — 트루헬스 클렌즈 패키지 / 미라클17 스타트팩 / 파워팩' },
-    { src: 'https://www.genspark.ai/api/files/s/qY5esp6G', caption: 'Life & Health — 점막·소화 / 혈당·장 건강 제품' },
-    { src: 'https://www.genspark.ai/api/files/s/RVypFwnv', caption: 'Life & Health — 면역건강 / 에너지 / 혈액순환 / 뇌건강 제품' },
-    { src: 'https://www.genspark.ai/api/files/s/mFjD5tGN', caption: 'Life & Health — 앰브로토스 / 옵티멀 / 항산화 / 호르몬 건강' },
-    { src: 'https://www.genspark.ai/api/files/s/wHwfsGWX', caption: 'Beauty & Skin Care — 헤어·바디·오랄·홈 케어 제품' },
-    { src: 'https://www.genspark.ai/api/files/s/oREBBlqh', caption: 'Life & Health — 눈건강 / 콜라겐 / 관절 / 남성·여성 건강' },
-    { src: 'https://www.genspark.ai/api/files/s/V6Dor1kY', caption: 'Beauty & Skin Care — 루미노베이션 스킨케어 풀 라인' },
-    { src: 'https://www.genspark.ai/api/files/s/ttIw5R4W', caption: 'Energy & Body — 간건강 / 식사대용 / 다이어트 / 건강 음료' }
+    { src: 'images/catalog-0.jpg', caption: '패키지 제품 — 트루헬스 클렌즈 패키지 / 미라클17 스타트팩 / 파워팩' },
+    { src: 'images/catalog-1.jpg', caption: 'Life & Health — 점막·소화 / 혈당·장 건강 제품' },
+    { src: 'images/catalog-2.jpg', caption: 'Life & Health — 면역건강 / 에너지 / 혈액순환 / 뇌건강 제품' },
+    { src: 'images/catalog-3.jpg', caption: 'Life & Health — 앰브로토스 / 옵티멀 / 항산화 / 호르몬 건강' },
+    { src: 'images/catalog-4.jpg', caption: 'Beauty & Skin Care — 헤어·바디·오랄·홈 케어 제품' },
+    { src: 'images/catalog-5.jpg', caption: 'Life & Health — 눈건강 / 콜라겐 / 관절 / 남성·여성 건강' },
+    { src: 'images/catalog-6.jpg', caption: 'Beauty & Skin Care — 루미노베이션 스킨케어 풀 라인' },
+    { src: 'images/catalog-7.jpg', caption: 'Energy & Body — 간건강 / 식사대용 / 다이어트 / 건강 음료' }
   ];
 
   var currentSlide = 0;
