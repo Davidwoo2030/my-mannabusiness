@@ -299,25 +299,133 @@ body {
   font-weight: 600;
 }
 .product-card-pv span { color: var(--green-mid); }
-.add-cart-btn {
+/* ─── CARD QUANTITY STEPPER ─────────────────────────────── */
+.card-cart-area {
   margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* Initial state: single wide "+ 담기" button */
+.card-add-btn {
   width: 100%;
   padding: 8px;
   border-radius: var(--radius-sm);
   border: none;
   background: var(--sage-pale);
   color: var(--green-dark);
-  font-size: .82rem;
+  font-size: .83rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all .18s;
+  transition: all .2s;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
 }
-.add-cart-btn:hover { background: var(--green-dark); color: #fff; }
-.add-cart-btn.added { background: var(--green-mid); color: #fff; }
+.card-add-btn:hover { background: var(--green-dark); color: #fff; }
+/* Qty stepper row – shown when qty > 0 */
+.card-stepper {
+  display: none;           /* shown via JS */
+  align-items: center;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1.5px solid var(--green-mid);
+  height: 34px;
+}
+.card-stepper.visible { display: flex; }
+.cs-btn {
+  flex: 0 0 34px;
+  height: 100%;
+  border: none;
+  background: var(--green-dark);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cs-btn:hover { background: var(--green-mid); }
+.cs-num {
+  flex: 1;
+  text-align: center;
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  background: #fff;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  user-select: none;
+}
+/* subtotal line inside card */
+.card-subtotal {
+  display: none;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--green-mid);
+  text-align: right;
+  padding-right: 2px;
+}
+.card-subtotal.visible { display: block; }
+
+/* compare-table inline stepper */
+.tbl-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--green-mid);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 5px;
+  height: 28px;
+}
+.ts-btn {
+  width: 26px; height: 100%;
+  border: none;
+  background: var(--green-dark);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+.ts-btn:hover { background: var(--green-mid); }
+.ts-num {
+  min-width: 24px;
+  text-align: center;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  background: #fff;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  user-select: none;
+}
+.ts-add-btn {
+  display: block;
+  margin-top: 5px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--green-mid);
+  background: #fff;
+  color: var(--green-mid);
+  font-size: .75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+}
+.ts-add-btn:hover { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
 
 /* ─── COMPARISON TABLE ────────────────────────────────────── */
 #compare-view { display: none; }
@@ -995,10 +1103,13 @@ function renderGrid() {
     const c = CURRENCY[p.country];
     const priceStr = formatPrice(p.price, p.country);
     const krwStr = p.country !== 'KR' ? `≈ ₩${toKRW(p.price, p.country).toLocaleString()}` : '';
-    const inCart = isInCart(p.id, p.country);
+    const cartItem = getCartItem(p.id, p.country);
+    const qty = cartItem ? cartItem.qty : 0;
+    const stepperVisible = qty > 0 ? 'visible' : '';
+    const subtotalStr = qty > 0 ? formatPrice(p.price * qty, p.country) + (qty > 1 ? ` (×${qty})` : '') : '';
 
     return `
-    <div class="product-card country-${p.country}">
+    <div class="product-card country-${p.country}" id="card-${p.id}">
       <span class="product-card-country">${c.flag} ${c.label}</span>
       <div class="product-card-name">
         ${escHtml(p.name_display)}
@@ -1009,11 +1120,19 @@ function renderGrid() {
         <span class="product-card-pv">PV <span>${p.pv}</span></span>
       </div>
       ${krwStr ? `<div style="font-size:.75rem;color:var(--green-mid);margin-top:4px">${krwStr}</div>` : ''}
-      <button class="add-cart-btn ${inCart ? 'added' : ''}"
-              onclick="toggleCart('${p.id}', '${p.country}', ${p.price}, ${p.pv}, this)"
-              data-id="${p.id}">
-        ${inCart ? '✓ 담음' : '+ 장바구니'}
-      </button>
+      <div class="card-cart-area">
+        <div class="card-stepper ${stepperVisible}" id="stepper-${p.id}">
+          <button class="cs-btn" onclick="cardQty('${p.id}','${p.country}',${p.price},${p.pv},-1)">−</button>
+          <span class="cs-num" id="csnum-${p.id}">${qty || 1}</span>
+          <button class="cs-btn" onclick="cardQty('${p.id}','${p.country}',${p.price},${p.pv},1)">+</button>
+        </div>
+        <button class="card-add-btn" id="addbtn-${p.id}"
+                onclick="cardAddFirst('${p.id}','${p.country}',${p.price},${p.pv})"
+                style="display:${qty > 0 ? 'none' : 'flex'}">
+          + 장바구니
+        </button>
+        <div class="card-subtotal ${stepperVisible}" id="csub-${p.id}">${subtotalStr}</div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1057,11 +1176,21 @@ function renderCompareTable() {
       if (!p) return `<td class="price-cell empty-cell">—</td>`;
       const krw = toKRW(p.price, c);
       const isBest = minKrw !== null && krw === minKrw;
-      return `<td class="price-cell${isBest ? ' best-price' : ''}">
+      const cartItem = getCartItem(p.id, c);
+      const tQty = cartItem ? cartItem.qty : 0;
+      const stepperHtml = tQty > 0
+        ? `<div class="tbl-stepper">
+            <button class="ts-btn" onclick="tblQty('${p.id}','${c}',${p.price},${p.pv},-1)">−</button>
+            <span class="ts-num" id="tsnum-${p.id}">${tQty}</span>
+            <button class="ts-btn" onclick="tblQty('${p.id}','${c}',${p.price},${p.pv},1)">+</button>
+          </div>`
+        : `<button class="ts-add-btn" onclick="tblAddFirst('${p.id}','${c}',${p.price},${p.pv})">+ 담기</button>`;
+      return `<td class="price-cell${isBest ? ' best-price' : ''}" id="tcell-${p.id}">
         <span class="price-main">${formatPrice(p.price, c)}</span>
         <span class="price-pv">PV ${p.pv}</span>
         ${c !== 'KR' ? `<span class="price-converted">≈ ₩${krw.toLocaleString()}</span>` : ''}
         ${isBest && prices.length > 1 ? '<span style="font-size:.65rem;color:#ff7043;font-weight:700">★ 최저가</span>' : ''}
+        ${stepperHtml}
       </td>`;
     });
 
@@ -1075,51 +1204,156 @@ function renderCompareTable() {
 // ─────────────────────────────────────────────────────────
 // CART LOGIC
 // ─────────────────────────────────────────────────────────
+function getCartItem(id, country) {
+  return cart[country].find(i => i.id === id) || null;
+}
 function isInCart(id, country) {
-  return cart[country].some(item => item.id === id);
+  return !!getCartItem(id, country);
 }
 
-function toggleCart(id, country, price, pv, btn) {
-  const idx = cart[country].findIndex(item => item.id === id);
-  if (idx >= 0) {
-    cart[country].splice(idx, 1);
-    if (btn) { btn.textContent = '+ 장바구니'; btn.classList.remove('added'); }
-  } else {
-    const p = PRODUCTS.find(p => p.id === id);
-    cart[country].push({ id, name: p ? p.name_display : id, price, pv, qty: 1 });
-    if (btn) { btn.textContent = '✓ 담음'; btn.classList.add('added'); }
-  }
+// ── Card view: first "+ 담기" click ──────────────────────
+function cardAddFirst(id, country, price, pv) {
+  const p = PRODUCTS.find(p => p.id === id);
+  cart[country].push({ id, name: p ? p.name_display : id, price, pv, qty: 1 });
+  _refreshCardUI(id, country, price, pv);
   updateCartBadges();
   renderCartPanels();
   switchCartTab(country);
 }
 
+// ── Card view: −/+ stepper ───────────────────────────────
+function cardQty(id, country, price, pv, delta) {
+  const item = getCartItem(id, country);
+  if (!item) return;
+  const newQty = item.qty + delta;
+  if (newQty <= 0) {
+    // Remove from cart
+    cart[country] = cart[country].filter(i => i.id !== id);
+    _refreshCardUI(id, country, price, pv);
+  } else {
+    item.qty = newQty;
+    _refreshCardUI(id, country, price, pv);
+  }
+  updateCartBadges();
+  renderCartPanels();
+}
+
+// ── Update card DOM in-place (no full re-render) ─────────
+function _refreshCardUI(id, country, price, pv) {
+  const item = getCartItem(id, country);
+  const qty = item ? item.qty : 0;
+
+  const stepperEl = document.getElementById(`stepper-${id}`);
+  const addBtnEl  = document.getElementById(`addbtn-${id}`);
+  const csnumEl   = document.getElementById(`csnum-${id}`);
+  const csubEl    = document.getElementById(`csub-${id}`);
+
+  if (!stepperEl) return; // card not in DOM (grid re-rendered)
+
+  if (qty > 0) {
+    stepperEl.classList.add('visible');
+    if (addBtnEl) addBtnEl.style.display = 'none';
+    if (csnumEl)  csnumEl.textContent = qty;
+    if (csubEl) {
+      csubEl.classList.add('visible');
+      csubEl.textContent = formatPrice(price * qty, country) + (qty > 1 ? ` (×${qty})` : '');
+    }
+  } else {
+    stepperEl.classList.remove('visible');
+    if (addBtnEl) addBtnEl.style.display = 'flex';
+    if (csnumEl)  csnumEl.textContent = 1;
+    if (csubEl) {
+      csubEl.classList.remove('visible');
+      csubEl.textContent = '';
+    }
+  }
+}
+
+// ── Compare table: first "+ 담기" click ─────────────────
+function tblAddFirst(id, country, price, pv) {
+  const p = PRODUCTS.find(p => p.id === id);
+  cart[country].push({ id, name: p ? p.name_display : id, price, pv, qty: 1 });
+  _refreshTableCell(id, country, price, pv);
+  updateCartBadges();
+  renderCartPanels();
+  switchCartTab(country);
+}
+
+// ── Compare table: −/+ stepper ──────────────────────────
+function tblQty(id, country, price, pv, delta) {
+  const item = getCartItem(id, country);
+  if (!item) return;
+  const newQty = item.qty + delta;
+  if (newQty <= 0) {
+    cart[country] = cart[country].filter(i => i.id !== id);
+  } else {
+    item.qty = newQty;
+  }
+  _refreshTableCell(id, country, price, pv);
+  updateCartBadges();
+  renderCartPanels();
+}
+
+// ── Update table cell stepper in-place ──────────────────
+function _refreshTableCell(id, country, price, pv) {
+  const cell = document.getElementById(`tcell-${id}`);
+  if (!cell) return;
+  const item = getCartItem(id, country);
+  const qty = item ? item.qty : 0;
+
+  // Replace the control widget (last element of cell)
+  const oldCtrl = cell.querySelector('.tbl-stepper, .ts-add-btn');
+  if (oldCtrl) oldCtrl.remove();
+
+  const newCtrl = document.createElement('div');
+  if (qty > 0) {
+    newCtrl.innerHTML = `<div class="tbl-stepper">
+      <button class="ts-btn" onclick="tblQty('${id}','${country}',${price},${pv},-1)">−</button>
+      <span class="ts-num" id="tsnum-${id}">${qty}</span>
+      <button class="ts-btn" onclick="tblQty('${id}','${country}',${price},${pv},1)">+</button>
+    </div>`;
+  } else {
+    newCtrl.innerHTML = `<button class="ts-add-btn" onclick="tblAddFirst('${id}','${country}',${price},${pv})">+ 담기</button>`;
+  }
+  cell.appendChild(newCtrl.firstElementChild);
+}
+
 function changeQty(country, id, delta) {
   const item = cart[country].find(i => i.id === id);
   if (!item) return;
-  item.qty = Math.max(1, item.qty + delta);
+  const newQty = item.qty + delta;
+  if (newQty <= 0) {
+    // Remove from cart via removeFromCart to sync all UI
+    removeFromCart(country, id);
+    return;
+  }
+  item.qty = newQty;
   renderCartPanels();
+  updateCartBadges();
+  // Sync card stepper & table cell
+  _refreshCardUI(id, country, item.price, item.pv);
+  const tsnumEl = document.getElementById(`tsnum-${id}`);
+  if (tsnumEl) tsnumEl.textContent = newQty;
 }
 
 function removeFromCart(country, id) {
+  const item = cart[country].find(i => i.id === id);
+  const price = item ? item.price : 0;
+  const pv    = item ? item.pv    : 0;
   cart[country] = cart[country].filter(i => i.id !== id);
   updateCartBadges();
   renderCartPanels();
-  // Update add-cart buttons
-  document.querySelectorAll(`[data-id="${id}"]`).forEach(btn => {
-    btn.textContent = '+ 장바구니';
-    btn.classList.remove('added');
-  });
+  // Refresh card/table UI
+  _refreshCardUI(id, country, price, pv);
+  _refreshTableCell(id, country, price, pv);
 }
 
 function clearCart(country) {
-  const ids = cart[country].map(i => i.id);
+  const snapshot = cart[country].map(i => ({ id: i.id, price: i.price, pv: i.pv }));
   cart[country] = [];
-  ids.forEach(id => {
-    document.querySelectorAll(`[data-id="${id}"]`).forEach(btn => {
-      btn.textContent = '+ 장바구니';
-      btn.classList.remove('added');
-    });
+  snapshot.forEach(({ id, price, pv }) => {
+    _refreshCardUI(id, country, price, pv);
+    _refreshTableCell(id, country, price, pv);
   });
   updateCartBadges();
   renderCartPanels();
