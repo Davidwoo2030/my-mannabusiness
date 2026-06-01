@@ -927,6 +927,22 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   background: linear-gradient(155deg, #e9f5ee 0%, #f4f9f1 50%, #fefcf7 100%);
 }
 
+/* Business 섹션 — 밝은 배경이므로 .white 텍스트를 어두운 색으로 덮어씌움 */
+.business-section .section-tag.white {
+  background: var(--green-pale);
+  color: var(--green-dark);
+  border-color: var(--green-soft);
+}
+.business-section .section-title.white {
+  color: var(--navy);
+}
+.business-section .section-title.white em {
+  color: var(--green-dark);
+}
+.business-section .section-desc.white {
+  color: var(--text-sub);
+}
+
 /* Distribution */
 .distrib-section {
   margin-bottom: 64px;
