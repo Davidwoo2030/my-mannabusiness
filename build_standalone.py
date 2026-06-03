@@ -4,7 +4,8 @@ Build the complete standalone HTML combining:
 - index.html (full marketing site)
 - css/style.css (inlined)
 - js/main.js (inlined, with base64 catalog images)
-- images/catalog-0..7.jpg (base64)
+- images/catalog-0..7.jpg (base64)  ← 기존 매나테크 전제품 카탈로그
+- images/truhealth/truhealth-0..12.jpg (base64)  ← NEW: TruHealth 클린다이어트 브로셔
 - price-compare feature (CSS + JS + HTML from price-compare-standalone.html)
 """
 
@@ -14,14 +15,23 @@ import re
 
 WEBAPP = '/home/user/webapp'
 
-# ── 1. Base64-encode all catalog images ──────────────────────────
-print("Encoding catalog images...")
+# ── 1a. Base64-encode original catalog images (매나테크 전제품) ────
+print("Encoding catalog images (매나테크 전제품)...")
 catalog_b64 = {}
 for i in range(8):
     path = os.path.join(WEBAPP, f'images/catalog-{i}.jpg')
     with open(path, 'rb') as f:
         catalog_b64[i] = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode('ascii')
-print(f"  Done: {len(catalog_b64)} images encoded")
+print(f"  Done: {len(catalog_b64)} catalog images encoded")
+
+# ── 1b. Base64-encode TruHealth brochure images (클린다이어트) ────
+print("Encoding TruHealth brochure images...")
+th_b64 = {}
+for i in range(13):
+    path = os.path.join(WEBAPP, f'images/truhealth/truhealth-{i}.jpg')
+    with open(path, 'rb') as f:
+        th_b64[i] = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode('ascii')
+print(f"  Done: {len(th_b64)} TruHealth images encoded")
 
 # ── 2. Read source files ──────────────────────────────────────────
 print("Reading source files...")
@@ -86,6 +96,195 @@ body {
 }
 """
 
+# ── 5b. Pre-build TruHealth slides HTML (separate var for f-string safety) ──
+TH_SLIDES_META = [
+    ("TruHealth Clean Diet 표지",              "portrait"),
+    ("매나테크 제안 - 클린다이어트",           "landscape"),
+    ("6가지 비만유형 / 다이어트의 이해",       "landscape"),
+    ("클린다이어트의 원리 1",                  "landscape"),
+    ("클린다이어트의 원리 2",                  "landscape"),
+    ("3주 프로그램 1·2~3주차",                 "landscape"),
+    ("3개월 유지 / 스마트 구독",               "landscape"),
+    ("트루헬스 클렌즈 패키지 상세",            "landscape"),
+    ("함께하면 좋은 제품",                     "landscape"),
+    ("클린다이어트 진행시 개선과정 Q&amp;A",   "landscape"),
+    ("클린다이어트가 효과적인 이유",            "portrait"),
+    ("333 클린다이어트 / 3일 프로그램 리셋",   "landscape"),
+    ("Q&amp;A / 명현반응 호전반응",             "landscape"),
+]
+
+TH_SLIDES_HTML = ''
+for i, (alt, orient) in enumerate(TH_SLIDES_META):
+    active_cls = ' active' if i == 0 else ''
+    TH_SLIDES_HTML += (
+        f'          <div class="th-slide{active_cls}" data-th="{i}" data-orient="{orient}">\n'
+        f'            <img src="{th_b64[i]}" alt="{alt}" />\n'
+        f'          </div>\n'
+    )
+
+TH_DOTS_HTML = ''.join(
+    f'        <button class="th-dot{" active" if i == 0 else ""}" data-thdot="{i}"></button>\n'
+    for i in range(13)
+)
+
+# ── 5c. TruHealth slider CSS ─────────────────────────────────────
+TH_CSS = """
+/* ═══════════════════════════════════════════════════
+   TruHealth Clean Diet Brochure Slider
+   ═══════════════════════════════════════════════════ */
+.th-brochure-section {
+  background: #f9f6f0;
+  padding: 80px 0;
+}
+.th-slider-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 960px;
+  margin: 0 auto 20px;
+}
+.th-slider {
+  overflow: hidden;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.13);
+  background: #fff;
+}
+.th-slide {
+  display: none;
+  width: 100%;
+}
+.th-slide.active {
+  display: block;
+}
+.th-slide img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+.th-slide[data-orient="portrait"] {
+  display: none;
+  justify-content: center;
+  background: #fff;
+}
+.th-slide[data-orient="portrait"].active {
+  display: flex;
+}
+.th-slide[data-orient="portrait"] img {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}
+.th-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 2px 12px rgba(0,0,0,.18);
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #2d6a4f;
+  transition: background .2s, transform .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.th-nav:hover {
+  background: #2d6a4f;
+  color: #fff;
+  transform: translateY(-50%) scale(1.08);
+}
+.th-prev { left: -24px; }
+.th-next { right: -24px; }
+.th-dots {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 14px 0 6px;
+}
+.th-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: none;
+  background: #c8d8c0;
+  cursor: pointer;
+  padding: 0;
+  transition: background .2s, transform .2s;
+}
+.th-dot.active {
+  background: #2d6a4f;
+  transform: scale(1.35);
+}
+.th-counter {
+  text-align: center;
+  font-size: .85rem;
+  color: #888;
+  margin-bottom: 0;
+}
+@media (max-width: 768px) {
+  .th-prev { left: -14px; }
+  .th-next { right: -14px; }
+  .th-nav { width: 36px; height: 36px; font-size: 1.3rem; }
+}
+@media (max-width: 480px) {
+  .th-prev { left: 4px; }
+  .th-next { right: 4px; }
+}
+"""
+
+# ── 5d. TruHealth slider JS ──────────────────────────────────────
+TH_JS = """
+(function() {
+  var slides   = document.querySelectorAll('.th-slide');
+  var dots     = document.querySelectorAll('.th-dot');
+  var prevBtn  = document.getElementById('thPrev');
+  var nextBtn  = document.getElementById('thNext');
+  var curNumEl = document.getElementById('thCurrentNum');
+  var totalEl  = document.getElementById('thTotalNum');
+  var total    = slides.length;
+  var cur      = 0;
+  if (!slides.length) return;
+  if (totalEl) totalEl.textContent = total;
+
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    dots[cur]  && dots[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    dots[cur]  && dots[cur].classList.add('active');
+    if (curNumEl) curNumEl.textContent = cur + 1;
+  }
+
+  prevBtn && prevBtn.addEventListener('click', function() { goTo(cur - 1); });
+  nextBtn && nextBtn.addEventListener('click', function() { goTo(cur + 1); });
+  dots.forEach(function(d, i) { d.addEventListener('click', function() { goTo(i); }); });
+
+  /* swipe */
+  var startX = 0;
+  var sliderEl = document.getElementById('thSlider');
+  if (sliderEl) {
+    sliderEl.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+    sliderEl.addEventListener('touchend', function(e) {
+      var dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) goTo(dx < 0 ? cur + 1 : cur - 1);
+    }, { passive: true });
+  }
+})();
+"""
+
 # ── 6. Assemble the complete HTML ────────────────────────────────
 print("Assembling final HTML...")
 
@@ -143,6 +342,8 @@ body.show-compare #page-compare {{ display: block; }}
 
 /* stats-source in business section — override for light bg */
 .business-section .stats-source {{ color: var(--text-sub) !important; }}
+
+{TH_CSS}
   </style>
 </head>
 <body>
@@ -166,6 +367,7 @@ body.show-compare #page-compare {{ display: block; }}
         <li><a href="#about">매나테크란</a></li>
         <li><a href="#product">제품 소개</a></li>
         <li><a href="#catalog">전제품 안내</a></li>
+        <li><a href="#truhealth">클린다이어트</a></li>
         <li><a href="#science">과학적 근거</a></li>
         <li><a href="#business">비즈니스</a></li>
         <li><a href="#compensation">보상플랜</a></li>
@@ -533,6 +735,31 @@ body.show-compare #page-compare {{ display: block; }}
       </div>
       <div class="slide-counter">
         <span id="slideCurrentNum">1</span> / <span id="slideTotalNum">8</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TRUHEALTH CLEAN DIET BROCHURE SECTION ===== -->
+  <section class="section th-brochure-section" id="truhealth">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">TruHealth Clean Diet</span>
+        <h2 class="section-title">트루헬스 클린다이어트<br><em>브로셔 전체 보기</em></h2>
+      </div>
+
+      <div class="th-slider-wrap">
+        <button class="th-nav th-prev" id="thPrev" aria-label="이전">&#8249;</button>
+        <div class="th-slider" id="thSlider">
+{TH_SLIDES_HTML}
+        </div><!-- /th-slider -->
+        <button class="th-nav th-next" id="thNext" aria-label="다음">&#8250;</button>
+      </div>
+
+      <div class="th-dots" id="thDots">
+{TH_DOTS_HTML}
+      </div>
+      <div class="th-counter">
+        <span id="thCurrentNum">1</span> / <span id="thTotalNum">13</span>
       </div>
     </div>
   </section>
@@ -988,6 +1215,13 @@ function showMainPage() {{
    PRICE COMPARE JS
    ════════════════════════════════════════════════════════ */
 {PC_JS}
+</script>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   TRUHEALTH CLEAN DIET BROCHURE SLIDER JS
+   ════════════════════════════════════════════════════════ */
+{TH_JS}
 </script>
 
 </body>
