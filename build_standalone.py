@@ -488,11 +488,68 @@ body.show-compare #page-compare {{ display: block; }}
       <div class="product-grid">
         <div class="product-card">
           <div class="product-card-header"><span class="product-icon">🧬</span><h3>세포의 건강에 작용하는 글리코영양소</h3></div>
-          <div class="body-flow">
-            <div class="flow-step">인체</div><div class="flow-arrow">→</div>
-            <div class="flow-step">5장 6부</div><div class="flow-arrow">→</div>
-            <div class="flow-step">조직</div><div class="flow-arrow">→</div>
-            <div class="flow-step active">세포</div>
+          <!-- 인체 → 세포 흐름 + 중앙 세포 SVG -->
+          <div class="body-flow-wrap">
+            <div class="body-flow">
+              <div class="flow-step">인체</div><div class="flow-arrow">→</div>
+              <div class="flow-step">5장 6부</div><div class="flow-arrow">→</div>
+              <div class="flow-step">조직</div><div class="flow-arrow">→</div>
+              <div class="flow-step active">세포</div>
+            </div>
+            <!-- 세포 + 당사슬 SVG 일러스트 -->
+            <div class="cell-svg-hero">
+              <svg viewBox="0 0 120 120" width="110" height="110" xmlns="http://www.w3.org/2000/svg">
+                <!-- 외부 당사슬 (긴 돌기, 다수) -->
+                <g stroke="#74c69d" stroke-width="2.2" stroke-linecap="round" fill="none">
+                  <line x1="60" y1="4"  x2="60" y2="18"/>
+                  <line x1="82" y1="9"  x2="76" y2="21"/>
+                  <line x1="99" y1="26" x2="89" y2="33"/>
+                  <line x1="108" y1="48" x2="95" y2="50"/>
+                  <line x1="105" y1="71" x2="93" y2="66"/>
+                  <line x1="91" y1="90" x2="82" y2="80"/>
+                  <line x1="72" y1="103" x2="67" y2="91"/>
+                  <line x1="50" y1="106" x2="52" y2="93"/>
+                  <line x1="30" y1="101" x2="36" y2="90"/>
+                  <line x1="14" y1="88" x2="23" y2="79"/>
+                  <line x1="4"  y1="69" x2="17" y2="65"/>
+                  <line x1="2"  y1="48" x2="15" y2="50"/>
+                  <line x1="7"  y1="28" x2="19" y2="34"/>
+                  <line x1="22" y1="11" x2="31" y2="22"/>
+                  <line x1="42" y1="4"  x2="46" y2="18"/>
+                </g>
+                <!-- 당사슬 끝 노드 -->
+                <g fill="#40916c">
+                  <circle cx="60" cy="3"   r="3.5"/>
+                  <circle cx="83" cy="8"   r="3"/>
+                  <circle cx="100" cy="25" r="3"/>
+                  <circle cx="109" cy="47" r="3"/>
+                  <circle cx="106" cy="72" r="3"/>
+                  <circle cx="92" cy="91"  r="3"/>
+                  <circle cx="73" cy="104" r="3"/>
+                  <circle cx="50" cy="107" r="3"/>
+                  <circle cx="29" cy="102" r="3"/>
+                  <circle cx="13" cy="89"  r="3"/>
+                  <circle cx="3"  cy="70"  r="3"/>
+                  <circle cx="1"  cy="48"  r="3"/>
+                  <circle cx="6"  cy="27"  r="3"/>
+                  <circle cx="21" cy="10"  r="3"/>
+                  <circle cx="41" cy="3"   r="3"/>
+                </g>
+                <!-- 세포막 -->
+                <circle cx="60" cy="60" r="36" fill="rgba(116,198,157,0.2)" stroke="#74c69d" stroke-width="3"/>
+                <!-- 세포질 내부 -->
+                <circle cx="60" cy="60" r="28" fill="rgba(116,198,157,0.10)"/>
+                <!-- 핵막 -->
+                <ellipse cx="59" cy="59" rx="16" ry="15" fill="rgba(29,68,40,0.75)" stroke="#52d68a" stroke-width="2"/>
+                <!-- 인 (nucleolus) -->
+                <circle cx="55" cy="55" rx="6" ry="5" r="5.5" fill="rgba(82,214,138,0.55)"/>
+                <circle cx="63" cy="63" r="3" fill="rgba(82,214,138,0.3)"/>
+                <!-- 미토콘드리아 점들 -->
+                <ellipse cx="44" cy="65" rx="5" ry="3" fill="rgba(255,209,102,0.45)" stroke="#ffd166" stroke-width="1"/>
+                <ellipse cx="74" cy="52" rx="4" ry="2.5" fill="rgba(255,209,102,0.45)" stroke="#ffd166" stroke-width="1"/>
+                <ellipse cx="50" cy="75" rx="3.5" ry="2" fill="rgba(255,209,102,0.35)" stroke="#ffd166" stroke-width="1"/>
+              </svg>
+            </div>
           </div>
           <p class="product-desc">세포와 세포 사이에 흐르는 정보인 당사슬이 호르몬, 미네랄, 비타민을 인지하고, 바이러스·박테리아·독소에 대한 1차 면역작용을 합니다.</p>
         </div>
@@ -512,9 +569,86 @@ body.show-compare #page-compare {{ display: block; }}
         <div class="product-card">
           <div class="product-card-header"><span class="product-icon">🔬</span><h3>세포 상태와 당사슬</h3></div>
           <div class="cell-status">
-            <div class="cell-item healthy"><div class="cell-circle">😊</div><span class="cell-label">건강 (10만개)</span></div>
-            <div class="cell-item warning"><div class="cell-circle">😐</div><span class="cell-label">반건강 (3~4만개)</span></div>
-            <div class="cell-item danger"><div class="cell-circle">😰</div><span class="cell-label">질병 (1만개 미만)</span></div>
+
+            <!-- 건강한 세포: 당사슬(돌기) 풍부 -->
+            <div class="cell-item healthy">
+              <div class="cell-circle">
+                <svg viewBox="0 0 90 90" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
+                  <!-- 당사슬 돌기 (많음) -->
+                  <g stroke="#52d68a" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.85">
+                    <line x1="45" y1="6"  x2="45" y2="14"/><circle cx="45" cy="5"  r="2.5" fill="#52d68a"/>
+                    <line x1="63" y1="11" x2="59" y2="18"/><circle cx="64" cy="10" r="2.5" fill="#52d68a"/>
+                    <line x1="76" y1="24" x2="70" y2="28"/><circle cx="78" cy="23" r="2.5" fill="#52d68a"/>
+                    <line x1="82" y1="42" x2="74" y2="43"/><circle cx="84" cy="42" r="2.5" fill="#52d68a"/>
+                    <line x1="76" y1="60" x2="70" y2="56"/><circle cx="78" cy="62" r="2.5" fill="#52d68a"/>
+                    <line x1="63" y1="73" x2="59" y2="67"/><circle cx="64" cy="75" r="2.5" fill="#52d68a"/>
+                    <line x1="45" y1="78" x2="45" y2="70"/><circle cx="45" cy="80" r="2.5" fill="#52d68a"/>
+                    <line x1="27" y1="73" x2="31" y2="67"/><circle cx="26" cy="75" r="2.5" fill="#52d68a"/>
+                    <line x1="14" y1="60" x2="20" y2="56"/><circle cx="12" cy="62" r="2.5" fill="#52d68a"/>
+                    <line x1="8"  y1="42" x2="16" y2="43"/><circle cx="6"  cy="42" r="2.5" fill="#52d68a"/>
+                    <line x1="14" y1="24" x2="20" y2="28"/><circle cx="12" cy="23" r="2.5" fill="#52d68a"/>
+                    <line x1="27" y1="11" x2="31" y2="18"/><circle cx="26" cy="10" r="2.5" fill="#52d68a"/>
+                  </g>
+                  <!-- 세포막 -->
+                  <circle cx="45" cy="45" r="28" fill="rgba(82,214,138,0.18)" stroke="#52d68a" stroke-width="2.5"/>
+                  <!-- 세포질 -->
+                  <circle cx="45" cy="45" r="21" fill="rgba(82,214,138,0.12)"/>
+                  <!-- 핵 -->
+                  <ellipse cx="44" cy="44" rx="11" ry="10" fill="rgba(45,106,79,0.7)" stroke="#52d68a" stroke-width="1.5"/>
+                  <ellipse cx="41" cy="41" rx="4" ry="3.5" fill="rgba(82,214,138,0.5)" stroke="none"/>
+                </svg>
+              </div>
+              <span class="cell-label">건강<br/>(당사슬 10만개)</span>
+            </div>
+
+            <!-- 반건강 세포: 당사슬 보통 -->
+            <div class="cell-item warning">
+              <div class="cell-circle">
+                <svg viewBox="0 0 90 90" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
+                  <!-- 당사슬 돌기 (중간) -->
+                  <g stroke="#ffd166" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.85">
+                    <line x1="45" y1="8"  x2="45" y2="16"/><circle cx="45" cy="7"  r="2.5" fill="#ffd166"/>
+                    <line x1="68" y1="18" x2="63" y2="24"/><circle cx="70" cy="17" r="2.5" fill="#ffd166"/>
+                    <line x1="80" y1="42" x2="72" y2="43"/><circle cx="82" cy="42" r="2.5" fill="#ffd166"/>
+                    <line x1="68" y1="66" x2="63" y2="61"/><circle cx="70" cy="68" r="2.5" fill="#ffd166"/>
+                    <line x1="45" y1="76" x2="45" y2="68"/><circle cx="45" cy="78" r="2.5" fill="#ffd166"/>
+                    <line x1="22" y1="66" x2="27" y2="61"/><circle cx="20" cy="68" r="2.5" fill="#ffd166"/>
+                    <line x1="10" y1="42" x2="18" y2="43"/><circle cx="8"  cy="42" r="2.5" fill="#ffd166"/>
+                    <line x1="22" y1="18" x2="27" y2="24"/><circle cx="20" cy="17" r="2.5" fill="#ffd166"/>
+                  </g>
+                  <!-- 세포막 -->
+                  <circle cx="45" cy="45" r="28" fill="rgba(255,209,102,0.15)" stroke="#ffd166" stroke-width="2.5"/>
+                  <circle cx="45" cy="45" r="21" fill="rgba(255,209,102,0.10)"/>
+                  <!-- 핵 -->
+                  <ellipse cx="44" cy="44" rx="11" ry="10" fill="rgba(120,80,20,0.6)" stroke="#ffd166" stroke-width="1.5"/>
+                  <ellipse cx="41" cy="41" rx="4" ry="3.5" fill="rgba(255,209,102,0.5)" stroke="none"/>
+                </svg>
+              </div>
+              <span class="cell-label">반건강<br/>(3~4만개)</span>
+            </div>
+
+            <!-- 질병 세포: 당사슬 희소 -->
+            <div class="cell-item danger">
+              <div class="cell-circle">
+                <svg viewBox="0 0 90 90" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
+                  <!-- 당사슬 돌기 (매우 적음) -->
+                  <g stroke="#ef4444" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.85">
+                    <line x1="45" y1="10" x2="45" y2="17"/><circle cx="45" cy="9"  r="2.5" fill="#ef4444"/>
+                    <line x1="76" y1="42" x2="69" y2="43"/><circle cx="78" cy="42" r="2.5" fill="#ef4444"/>
+                    <line x1="14" y1="42" x2="21" y2="43"/><circle cx="12" cy="42" r="2.5" fill="#ef4444"/>
+                  </g>
+                  <!-- 세포막 (불규칙) -->
+                  <path d="M45,17 Q62,14 72,27 Q83,40 77,56 Q70,72 55,76 Q40,82 28,73 Q14,63 13,48 Q12,33 23,23 Q34,13 45,17Z"
+                        fill="rgba(239,68,68,0.12)" stroke="#ef4444" stroke-width="2"/>
+                  <circle cx="45" cy="47" r="19" fill="rgba(239,68,68,0.08)"/>
+                  <!-- 핵 (찌그러짐) -->
+                  <ellipse cx="44" cy="46" rx="9" ry="11" fill="rgba(100,20,20,0.65)" stroke="#ef4444" stroke-width="1.5"/>
+                  <ellipse cx="42" cy="43" rx="3" ry="2.5" fill="rgba(239,68,68,0.4)" stroke="none"/>
+                </svg>
+              </div>
+              <span class="cell-label">질병<br/>(1만개 미만)</span>
+            </div>
+
           </div>
           <p class="product-desc small">건강한 세포는 10만개의 당사슬을 가지고 있으며, 질병 상태에서는 1만개 미만으로 줄어듭니다.</p>
         </div>
