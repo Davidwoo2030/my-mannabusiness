@@ -24,13 +24,18 @@ for i in range(8):
         catalog_b64[i] = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode('ascii')
 print(f"  Done: {len(catalog_b64)} catalog images encoded")
 
-# ── 1b. Base64-encode TruHealth brochure images (클린다이어트) ────
-print("Encoding TruHealth brochure images...")
+# ── 1b. Base64-encode TruHealth brochure images (고화질 2x 업스케일본) ────
+print("Encoding TruHealth brochure images (HQ 2x upscaled)...")
 th_b64 = {}
 for i in range(13):
-    path = os.path.join(WEBAPP, f'images/truhealth/truhealth-{i}.jpg')
+    # 고화질 폴더 우선 사용, 없으면 원본 폴백
+    hq_path = os.path.join(WEBAPP, f'images/truhealth_hq/truhealth-{i}.jpg')
+    orig_path = os.path.join(WEBAPP, f'images/truhealth/truhealth-{i}.jpg')
+    path = hq_path if os.path.exists(hq_path) else orig_path
     with open(path, 'rb') as f:
         th_b64[i] = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode('ascii')
+    tag = 'HQ' if os.path.exists(hq_path) else 'orig'
+    print(f"  [{tag}] truhealth-{i}.jpg")
 print(f"  Done: {len(th_b64)} TruHealth images encoded")
 
 # ── 2. Read source files ──────────────────────────────────────────
