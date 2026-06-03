@@ -63,7 +63,8 @@
 html { scroll-behavior: smooth; font-size: 16px; }
 
 body {
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', '나눔고딕',
+               'Noto Sans KR', 'Noto Sans CJK KR', sans-serif;
   color: var(--text-main);
   background: var(--white);
   line-height: 1.65;

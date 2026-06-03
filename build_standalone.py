@@ -80,19 +80,23 @@ pc_body_html = re.sub(r'<script>.*', '', pc_body_full, flags=re.DOTALL).strip()
 
 print(f"  CSS: {len(PC_CSS)} chars, JS: {len(PC_JS)} chars, HTML: {len(pc_body_html)} chars")
 
-# ── 5. Build font-face CSS (system fonts, no external dependency) ─
+# ── 5. Patch CSS: replace 'Noto Sans KR' font references with full system stack ─
+# style.css 에서 body font-family 를 시스템 폰트로 직접 교체
+SYSTEM_FONT = ("'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', '나눔고딕', "
+               "'Noto Sans CJK KR', -apple-system, BlinkMacSystemFont, sans-serif")
+CSS = CSS.replace("font-family: 'Noto Sans KR', sans-serif;",
+                  f"font-family: {SYSTEM_FONT};")
+CSS = CSS.replace("font-family: 'Noto Sans KR',sans-serif;",
+                  f"font-family: {SYSTEM_FONT};")
+# 혹시 남아있는 Noto Sans KR 단독 참조도 교체
+CSS = CSS.replace("'Noto Sans KR'", 
+                  "'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕','나눔고딕','Noto Sans CJK KR'")
+
 FONT_CSS = """
-/* ── System fonts (no Google Fonts dependency) ── */
-body {
-  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', '나눔고딕', 
-               'Noto Sans KR', 'Noto Sans CJK KR', sans-serif !important;
-}
-.logo-glg, .logo-text, .section-title, .hero-title,
-.hero-title-light, .hero-title-bold, .circle-glg,
-.hero-eyebrow, .timeline-title, .plan-level-circle,
-.so-logo, .cf-letter {
-  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', 'Noto Sans KR', 
-               Georgia, serif !important;
+/* ── Standalone: 시스템 폰트 최우선 적용 (Google Fonts 불필요) ── */
+html, body, * {
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', '나눔고딕',
+               'Noto Sans CJK KR', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 """
 
@@ -302,11 +306,14 @@ HTML = f"""<!DOCTYPE html>
 
   <style>
 /* ══════════════════════════════════════════════════════════
-   MAIN STYLESHEET (index.html)
+   SYSTEM FONT OVERRIDE — 최우선 (Google Fonts 대체)
+   ══════════════════════════════════════════════════════════ */
+{FONT_CSS}
+
+/* ══════════════════════════════════════════════════════════
+   MAIN STYLESHEET (style.css — Noto Sans KR 참조 패치 완료)
    ══════════════════════════════════════════════════════════ */
 {CSS}
-
-{FONT_CSS}
 
 /* ── PAGE SWITCHER ── */
 #page-main    {{ display: block; }}

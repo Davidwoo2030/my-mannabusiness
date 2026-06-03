@@ -9,7 +9,18 @@
 
   <style>
 /* ══════════════════════════════════════════════════════════
-   MAIN STYLESHEET (index.html)
+   SYSTEM FONT OVERRIDE — 최우선 (Google Fonts 대체)
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Standalone: 시스템 폰트 최우선 적용 (Google Fonts 불필요) ── */
+html, body, * {
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', '나눔고딕',
+               'Noto Sans CJK KR', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   MAIN STYLESHEET (style.css — Noto Sans KR 참조 패치 완료)
    ══════════════════════════════════════════════════════════ */
 /* =========================================
    MANNATECH GLG — MAIN STYLESHEET
@@ -76,7 +87,8 @@
 html { scroll-behavior: smooth; font-size: 16px; }
 
 body {
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', '나눔고딕',
+               'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕','나눔고딕','Noto Sans CJK KR', 'Noto Sans CJK KR', sans-serif;
   color: var(--text-main);
   background: var(--white);
   line-height: 1.65;
@@ -2258,21 +2270,6 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .slide-info h3 { font-size: 1rem; }
   .lightbox-content { max-width: calc(100vw - 80px); }
   .lightbox-nav { width: 40px; height: 40px; font-size: 1.6rem; }
-}
-
-
-
-/* ── System fonts (no Google Fonts dependency) ── */
-body {
-  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', '나눔고딕', 
-               'Noto Sans KR', 'Noto Sans CJK KR', sans-serif !important;
-}
-.logo-glg, .logo-text, .section-title, .hero-title,
-.hero-title-light, .hero-title-bold, .circle-glg,
-.hero-eyebrow, .timeline-title, .plan-level-circle,
-.so-logo, .cf-letter {
-  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', 'Noto Sans KR', 
-               Georgia, serif !important;
 }
 
 
