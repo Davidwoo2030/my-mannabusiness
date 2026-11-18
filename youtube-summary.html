@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>유튜브 링크 요약 폼</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1d2330;
+    --muted: #6b7280;
+    --line: #dfe3ea;
+    --accent: #2563eb;
+    --accent-text: #ffffff;
+    --danger: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1218;
+      --card: #171c25;
+      --text: #e6e9ef;
+      --muted: #9aa3b2;
+      --line: #2a313d;
+      --accent: #3b82f6;
+      --accent-text: #ffffff;
+      --danger: #f97066;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1218;
+    --card: #171c25;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --line: #2a313d;
+    --accent: #3b82f6;
+    --accent-text: #ffffff;
+    --danger: #f97066;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans KR", sans-serif;
+    line-height: 1.6;
+  }
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 0.95rem; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; }
+  input[type="url"], input[type="number"], textarea {
+    width: 100%;
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  textarea { min-height: 160px; resize: vertical; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+  .row input[type="url"] { flex: 1 1 260px; }
+  button {
+    font: inherit;
+    font-weight: 600;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .hint { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+  .error { color: var(--danger); font-size: 0.9rem; margin-top: 8px; min-height: 1.2em; }
+  .video { display: none; }
+  .video.show { display: block; }
+  .video-meta { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+  .video-meta img { width: 160px; max-width: 40%; border-radius: 8px; border: 1px solid var(--line); }
+  .video-meta .title { font-weight: 700; margin: 0 0 4px; }
+  .video-meta .channel { color: var(--muted); font-size: 0.9rem; margin: 0; }
+  .embed { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: #000; }
+  .embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .summary-out {
+    white-space: pre-wrap;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 80px;
+    font-size: 0.95rem;
+  }
+  .keywords { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .chip {
+    font-size: 0.8rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  @media (max-width: 480px) {
+    .video-meta { flex-direction: column; }
+    .video-meta img { width: 100%; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>유튜브 링크 요약 폼</h1>
+  <p class="sub">유튜브 링크를 넣고, 자막이나 대본을 붙여넣으면 핵심 문장을 골라 요약해 드립니다. 요약은 브라우저 안에서만 처리되며 어디에도 전송되지 않습니다.</p>
+
+  <section class="card">
+    <label for="url">1. 유튜브 링크</label>
+    <div class="row">
+      <input id="url" type="url" placeholder="https://www.youtube.com/watch?v=... 또는 https://youtu.be/..." autocomplete="off">
+      <button id="loadBtn" class="primary" type="button">영상 불러오기</button>
+    </div>
+    <div id="urlError" class="error" role="alert"></div>
+
+    <div id="video" class="video" aria-live="polite">
+      <div class="video-meta">
+        <img id="thumb" alt="영상 썸네일" src="">
+        <div>
+          <p id="title" class="title"></p>
+          <p id="channel" class="channel"></p>
+        </div>
+      </div>
+      <div class="embed">
+        <iframe id="player" title="유튜브 영상" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <label for="text">2. 자막 / 대본 / 메모 붙여넣기</label>
+    <textarea id="text" placeholder="유튜브 영상의 자막(스크립트)이나 대본, 직접 적은 메모를 여기에 붙여넣으세요."></textarea>
+    <div class="hint">유튜브 영상 아래 '더보기 → 스크립트 표시'에서 복사할 수 있습니다.</div>
+
+    <div class="row">
+      <label for="count" style="margin:0;font-weight:500;">요약 문장 수</label>
+      <input id="count" type="number" min="1" max="20" value="5" style="width:90px;">
+      <button id="sumBtn" class="primary" type="button">요약하기</button>
+      <button id="clearBtn" type="button">비우기</button>
+    </div>
+    <div id="textError" class="error" role="alert"></div>
+  </section>
+
+  <section class="card" id="resultCard" hidden>
+    <label>3. 요약 결과</label>
+    <div id="keywords" class="keywords"></div>
+    <div id="summary" class="summary-out"></div>
+    <div class="actions">
+      <button id="copyBtn" type="button">요약 복사</button>
+      <span id="copyMsg" class="hint"></span>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---- 유튜브 링크에서 video id 추출 ----
+  function parseVideoId(raw) {
+    if (!raw) return null;
+    var url;
+    try { url = new URL(raw.trim()); } catch (e) {
+      try { url = new URL("https://" + raw.trim()); } catch (e2) { return null; }
+    }
+    var host = url.hostname.replace(/^www\./, "").replace(/^m\./, "");
+    var id = null;
+    if (host === "youtu.be") {
+      id = url.pathname.slice(1).split("/")[0];
+    } else if (host === "youtube.com" || host === "music.youtube.com") {
+      if (url.pathname === "/watch") {
+        id = url.searchParams.get("v");
+      } else {
+        var m = url.pathname.match(/^\/(shorts|embed|live|v)\/([^/?#]+)/);
+        if (m) id = m[2];
+      }
+    }
+    return id && /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
+  }
+
+  // ---- 영상 불러오기 (썸네일 + 제목 + 플레이어) ----
+  var currentId = null;
+
+  function loadVideo() {
+    $("urlError").textContent = "";
+    var id = parseVideoId($("url").value);
+    if (!id) {
+      $("urlError").textContent = "올바른 유튜브 링크가 아닙니다. 영상 주소를 다시 확인해 주세요.";
+      $("video").classList.remove("show");
+      currentId = null;
+      return;
+    }
+    currentId = id;
+    $("thumb").src = "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg";
+    $("player").src = "https://www.youtube-nocookie.com/embed/" + id;
+    $("title").textContent = "제목 불러오는 중…";
+    $("channel").textContent = "";
+    $("video").classList.add("show");
+
+    var watchUrl = "https://www.youtube.com/watch?v=" + id;
+    fetch("https://www.youtube.com/oembed?format=json&url=" + encodeURIComponent(watchUrl))
+      .then(function (r) { if (!r.ok) throw new Error("oembed " + r.status); return r.json(); })
+      .then(function (data) {
+        if (currentId !== id) return;
+        $("title").textContent = data.title || "(제목 없음)";
+        $("channel").textContent = data.author_name ? "채널: " + data.author_name : "";
+      })
+      .catch(function () {
+        if (currentId !== id) return;
+        $("title").textContent = "영상 정보를 가져오지 못했습니다";
+      });
+  }
+
+  // ---- 로컬 추출형 요약 ----
+  var STOP = new Set([
+    "그리고","그러나","하지만","그래서","또한","때문에","이것","저것","그것","이런","저런","그런",
+    "있다","있는","있습니다","합니다","입니다","하는","하고","에서","으로","에게","처럼","보다",
+    "the","a","an","and","or","of","to","in","on","is","are","was","were","it","that","this","for","with","as","at","by","be"
+  ]);
+
+  function splitSentences(text) {
+    return text
+      .replace(/\r/g, "")
+      .split(/(?<=[.!?。？！])\s+|\n+/)
+      .map(function (s) { return s.trim(); })
+      .filter(function (s) { return s.length >= 8; });
+  }
+
+  function tokenize(s) {
+    return (s.toLowerCase().match(/[\p{L}\p{N}]+/gu) || [])
+      .filter(function (w) { return w.length >= 2 && !STOP.has(w); });
+  }
+
+  function summarize(text, n) {
+    var sentences = splitSentences(text);
+    if (sentences.length === 0) return { sentences: [], keywords: [] };
+
+    var freq = Object.create(null);
+    sentences.forEach(function (s) {
+      tokenize(s).forEach(function (w) { freq[w] = (freq[w] || 0) + 1; });
+    });
+
+    var keywords = Object.keys(freq)
+      .sort(function (a, b) { return freq[b] - freq[a]; })
+      .slice(0, 8);
+
+    var scored = sentences.map(function (s, i) {
+      var toks = tokenize(s);
+      var score = 0;
+      toks.forEach(function (w) { score += freq[w]; });
+      // 너무 긴 문장은 약간 감점, 문장 길이 정규화
+      score = toks.length ? score / Math.sqrt(toks.length) : 0;
+      // 앞부분 문장에 약간의 가중치
+      if (i < 3) score *= 1.1;
+      return { i: i, s: s, score: score };
+    });
+
+    var picked = scored
+      .slice()
+      .sort(function (a, b) { return b.score - a.score; })
+      .slice(0, Math.min(n, sentences.length))
+      .sort(function (a, b) { return a.i - b.i; }); // 원래 순서 유지
+
+    return { sentences: picked.map(function (p) { return p.s; }), keywords: keywords };
+  }
+
+  function runSummary() {
+    $("textError").textContent = "";
+    var text = $("text").value;
+    if (!text.trim()) {
+      $("textError").textContent = "자막이나 대본을 붙여넣어 주세요.";
+      return;
+    }
+    var n = parseInt($("count").value, 10);
+    if (!n || n < 1) n = 5;
+    if (n > 20) n = 20;
+
+    var result = summarize(text, n);
+    if (result.sentences.length === 0) {
+      $("textError").textContent = "요약할 만큼 문장이 충분하지 않습니다.";
+      return;
+    }
+
+    var kw = $("keywords");
+    kw.innerHTML = "";
+    result.keywords.forEach(function (k) {
+      var span = document.createElement("span");
+      span.className = "chip";
+      span.textContent = "#" + k;
+      kw.appendChild(span);
+    });
+
+    var header = currentId ? "영상: https://www.youtube.com/watch?v=" + currentId + "\n\n" : "";
+    var body = result.sentences.map(function (s, idx) { return (idx + 1) + ". " + s; }).join("\n");
+    $("summary").textContent = header + body;
+    $("resultCard").hidden = false;
+    $("copyMsg").textContent = "";
+  }
+
+  // ---- 복사 ----
+  function copySummary() {
+    var t = $("summary").textContent;
+    if (!t) return;
+    var done = function (ok) { $("copyMsg").textContent = ok ? "복사되었습니다." : "복사에 실패했습니다. 직접 선택해 복사해 주세요."; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(function () { done(true); }, function () { done(false); });
+    } else {
+      done(false);
+    }
+  }
+
+  // ---- 이벤트 연결 ----
+  $("loadBtn").addEventListener("click", loadVideo);
+  $("url").addEventListener("keydown", function (e) { if (e.key === "Enter") loadVideo(); });
+  $("sumBtn").addEventListener("click", runSummary);
+  $("copyBtn").addEventListener("click", copySummary);
+  $("clearBtn").addEventListener("click", function () {
+    $("text").value = "";
+    $("textError").textContent = "";
+    $("resultCard").hidden = true;
+  });
+})();
+</script>
+</body>
+</html>
